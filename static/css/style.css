@@ -1,0 +1,43 @@
+body{
+  padding: 0;
+  background: #000;
+  margin: 0;
+  overflow: hidden;
+}
+
+
+
+#watch{
+  background-color: transparent!important;
+}
+
+#backImage{
+ 
+  width: 100%;
+  min-height: 100vh; 
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+
+}
+
+.backCard{
+  background-color: rgba(255, 255, 255, 0.4);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(20px);
+  font-weight: bold;
+}
+.backCardImage{
+  backdrop-filter: blur(8px);
+
+}
+
+.sideVarticleRow{
+  width: 50px;
+  height: 100vh;
+  position: absolute;
+  right: 0px;
+  background-color: blue;
+}

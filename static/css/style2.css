@@ -1,0 +1,211 @@
+    :root {
+        --text-color2: #922800 !important;
+        --text-color: #09310a !important;
+    }
+
+    body::-webkit-scrollbar,
+    div::-webkit-scrollbar {
+        width: 0px;
+    }
+
+    .text-primary {
+        color: var(--text-color) !important;
+    }
+
+    body {
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+    }
+
+
+
+    #watch {
+        background-color: transparent !important;
+    }
+
+    #backImage {
+
+        width: 100%;
+        min-height: 100vh;
+        background-size: cover;
+        background-position: center center;
+        background-repeat: no-repeat;
+        -webkit-backdrop-filter: blur(5px);
+        backdrop-filter: blur(5px);
+
+    }
+
+    .backCard {
+        background-color: rgba(255, 255, 255, 0.4) !important;
+        -webkit-backdrop-filter: blur(5px)!important;
+        backdrop-filter: blur(20px)!important;
+        font-weight: bold!important;
+    }
+
+    .backCardImage {
+        backdrop-filter: blur(8px);
+
+    }
+
+    .sideVarticleRow {
+        width: 50px;
+        height: 100vh;
+        position: absolute;
+        right: 0px;
+        background-color: blue;
+    }
+
+    #searchUrlsource {
+        background: #ffffff3d !important;
+        color: var(--text-color) !important;
+    }
+
+
+    .sideMenuShortcuts {
+        right: 0px !important;
+        -webkit-backdrop-filter: blur(0px);
+        backdrop-filter: blur(0px);
+        width: 150px;
+        overflow: auto;
+        overflow-x: visible;
+        z-index: 1;
+        height: 100%;
+        position: absolute;
+        right: -50px;
+        top: 0%;
+    }
+
+    .sideMenuShortcuts::-webkit-scrollbar {
+        display: none;
+    }
+
+    .sideMenuShortcuts div {
+        width: 70px;
+        /* height: 180px; */
+        background-color: #d4d2d293;
+        margin: 2px;
+        cursor: pointer;
+        padding: 3px 5px;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(5px);
+        border-radius: 5px;
+        transition: all 0.8s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .sideMenuShortcuts div button,
+    .sideMenuShortcuts div a {
+        height: 40px;
+        display: flex;
+        flex-wrap: nowrap;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+        background-color: transparent;
+    }
+
+    .sideMenuShortcuts div button i,
+    .sideMenuShortcuts div a i {
+        font-size: 30px;
+        color: #038d07;
+        transition: all 0.5s;
+
+
+    }
+
+    .sideMenuShortcuts div button span,
+    .sideMenuShortcuts div a span {
+        font-size: 20px;
+        display: none;
+        transition: all 0.5s;
+        margin-left: 10px;
+        transition: all 0.5s;
+    }
+
+
+    .sideMenuShortcuts div:hover {
+        width: 130px;
+    }
+
+    .sideMenuShortcuts div:hover button span,
+    .sideMenuShortcuts div:hover a span {
+        display: block;
+        color: white;
+    }
+
+    button{
+        border: none !important;
+        padding:0px;
+    }
+    
+
+
+
+    @media only screen and (max-width: 680px) {
+        .fornt_Image {
+            margin: 0px !important;
+            padding:0px !important;
+
+        }
+
+
+        .phone_rounded_thumbnail {
+            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
+            box-sizing: border-box;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .playlistBox {
+            max-width: 170px;
+        }
+
+        .phone_rounded_thumbnail {
+            box-sizing: border-box;
+            position: absolute !important;
+            top: 0%;
+            left: 50%;
+            transform: translate(-50%, -0%);
+            width: 100%;
+            height: 85%;
+            /*background: rgb(0, 225, 255);*/
+            background-position: center center;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 3px;
+        }
+
+        .phone_rounded_thumbnail img {
+            margin: auto;
+            width: max-content;
+        }
+    }
+
+    @media only screen and (max-width: 300px) {
+        .fornt_Image {
+            height: 88% !important;
+            width: 95%;
+            left: -39px;
+            bottom: 20px !important;
+
+        }
+
+        .side_actions {
+            right: -30px !important;
+            -webkit-backdrop-filter: blur(0px);
+            backdrop-filter: blur(0px);
+
+        }
+
+        .playlistBox {
+            max-width: 130px;
+        }
+    }

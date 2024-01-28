@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="decription" content="">
+  <meta property="og:title" id="shareTitle" content="{{playingAudio.title}}">
+  <meta property="og:image" id="ShareImage" content="https://img.youtube.com/vi/{{VideoId}}/maxresdefault.jpg">
+  <meta property="og:description"
+    content="Play YouTube videos in to mp3 format with hight quality audio and this is free for you">
+  <meta property="og:type" content="article">
+  <meta property="og:url" id="shareUrl" content="https://flaviocopes.com/setup-github-credentials-macos/">
+
+
+  <title>YouTube Mp3</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+  {% load static %}
+  <link rel="icon" type="image/x-icon" href="{% static 'files/icon1.png'%}">
+  <link rel="stylesheet" href="{% static 'css/style2.css'%}">
+
+  <style>
+    @-webkit-keyframes blinker {
+      from {
+        opacity: 1.0;
+      }
+
+      to {
+        opacity: 0.0;
+      }
+    }
+
+    .waitingForConnection {
+      -webkit-animation-name: blinker;
+      -webkit-animation-iteration-count: infinite;
+      -webkit-animation-timing-function: cubic-bezier(.5, 0, 1, 1);
+      -webkit-animation-duration: 0.9s;
+    }
+
+    #phoneshareButton {
+      display: none !important;
+    }
+
+    .videoWidth {
+      max-width: 250px !important;
+    }
+
+    .bg-info {
+      background: linear-gradient(331deg, #00ff66, #00cdff47, #00ff00ab) !important;
+    }
+
+    .bg-info2 {
+      background: linear-gradient(331deg, #ff00f2, #00ff00ab) !important;
+    }
+
+    @media only screen and (max-width: 680px) {
+      .fornt_Image {
+        height: 75% !important;
+        width: 95%;
+        bottom: 50px !important;
+        margin: 0px 2px !important;
+
+      }
+
+      #playlistThumbnail {
+        width: 100% !important;
+      }
+
+      #phoneshareButton {
+        display: block !important;
+      }
+
+      #desktopshareButton {
+        display: none !important;
+      }
+
+      .navsearch span {
+        display: none;
+      }
+
+      .navsearch {
+        padding: 0px;
+        margin: 0px;
+      }
+
+      .navsearch a {
+        padding: 0px;
+        margin: 0px;
+      }
+
+      .seach_results div {
+        width: 10rem !important;
+        min-width: unset !important;
+        align-items: flex-end !important;
+        justify-content: space-around;
+        margin: 3px auto !important;
+      }
+
+      .videoWidth {
+        max-width: 165px !important;
+      }
+    }
+  </style>
+
+  <style>
+    input[type="range"] {
+      -webkit-appearance: none;
+      margin-right: 15px;
+
+      height: 7px;
+      background: rgba(255, 255, 255, 0.336);
+      border-radius: 5px;
+      background-image: linear-gradient(var(--text-color), var(--text-color));
+      background-size: 0% 100%;
+      background-repeat: no-repeat;
+      cursor: pointer !important;
+
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      cursor: pointer !important;
+      height: 15px;
+      width: 15px;
+      border-radius: 50%;
+      background: var(--text-color);
+      cursor: ew-resize;
+      box-shadow: 0 0 2px 0 #555;
+      transition: background .3s ease-in-out;
+    }
+
+    input[type=range]::-webkit-slider-runnable-track {
+      -webkit-appearance: none;
+      box-shadow: none;
+      border: none;
+      background: transparent;
+      cursor: pointer !important;
+    }
+
+    button,
+    input {
+      outline: none !important;
+    }
+  </style>
+
+  <script>
+    document.addEventListener('contextmenu', (event) => {
+      return true
+    })
+
+  </script>
+</head>
+
+<body class="overflow-hidden bg-info" id="player">
+
+  {% csrf_token %}
+
+  <button onclick="GotoSearch()" title="Search New song or Playlist"
+    class="btn btn-sm position-absolute end-0 top-0 m-5 waitingForConnection" style="z-index:1;"><i
+      class="bi bi-tv text-primary fs-4"></i></button>
+
+  <div id="backImag"
+    style="background-image: {% if VideoId %} url('https://img.youtube.com/vi/{{VideoId}}/maxresdefault.jpg'); {% else %} url('{% static 'files/back.jpg'%}'); {% endif %} background-size:cover;background-position:center center;">
+    <div class="d-flex justify-content-center align-items-end backCardImage" style="height:100vh;">
+
+      <div class="m-1 position-absolute top-0 w-100 px-4">
+        <div class="row justify-content-center align-items-center">
+          <div class="col-auto w-0 p-0"><a href="/" style="width: 10px!important;"><img
+                src="{% static 'files/icon1.png'%}" style="transform:scale(1.5)" width="30px" height="30px" alt=""></a>
+          </div>
+          <div class="col"><input type="search" name="searchUrlsource" id="searchUrlsource" class="form-control"
+              placeholder="www.youtube.com"></div>
+          <div class="col-auto w-0 px-2"><button class="btn p-0 border-0" id="SearchForurl"><i
+                class="bi bi-search-heart fs-3 text-white"></i></button></div>
+          {% if request.user.is_authenticated %}
+          <a role="button" title="{{request.user.username}}" id="userProfile"
+            style="width:30px;height:30px;display:flex;justify-content:center;align-items:center;"
+            class="hover-zoom-2 rounded-circle overflow-hidden"><img src="{% static 'files/user.png'%}"
+              style="width: 100%;height:100%;" alt="..." class=" bg-primary hover"></a>
+          {% else %}
+          <a href="/login" id="userProfile"
+            style="width:30px;height:30px;display:flex;justify-content:center;align-items:center;" title="Login/Singup"
+            class="hover-zoom-2 overflow-hidden"><img style="height:100%;" src="{% static 'files/user.png'%}"
+              alt="..."></a>
+          {% endif %}
+
+        </div>
+        <label for="watch" class="link-text text-center" id="searchError"></label>
+
+      </div>
+
+      <div
+        class="backCard d-flex flex-column justify-content-end align-items-center position-relative w-100 card mx-5 overflow-hidden fornt_Image"
+        style="height:85%;">
+
+        <div class="position-absolute end-0 top-0 d-flex flex-column overflow-auto align-items-end sideMenuShortcuts"
+          style="width:150px;z-index:1;height:80%">
+          <div class="my-auto"><button id="shortHistory" data-bs-target="#modalforHistoryPlaylist"
+              data-bs-toggle="modal" class="btn"><i class="bi bi-list"></i> <span> Related</span></button> </div>
+          <div class="my-auto"><button id="shortfaveroite" data-bs-target="#modalformFaveroiteVideos"
+              data-bs-toggle="modal" class="btn"><i class="bi bi-film"></i> <span> videos</span></button></div>
+          <div class="my-auto {% if not VideoId %} d-none {% endif %}"><button id="issavedtolocal" class="btn"><i
+                class="bi bi-heart"></i> <span> Save</span></button></div>
+          <div class="my-auto {% if not VideoId %} {% endif %}" id="desktopShareButton"><button id="shortShare"
+              data-bs-target="#modalformDesktopshare" data-bs-toggle="modal" class="btn"><i
+                class="bi bi-share-fill"></i> <span> Share</span></button></div>
+          <!-- <div class="my-3 {% if not VideoId %} {% endif %}" id="phoneshareButton"><button id="shortShare" onclick="SharePage()" class="btn"><i class="bi bi-share-fill"></i> <span> Share</span></button></div> -->
+          <div class="my-auto {% if not VideoId %} {% endif %}"><a id="downloadNowbtn" class="btn "><i
+                class="bi bi-box-arrow-down"></i><span> Download</span> </a></div>
+
+        </div>
+
+        <div class="card h-100 overflow-hidden" style="box-sizing:border-box;background-color:transparent;">
+          <img ondblclick="PlayPausewithThumbnailClick()" id="thumbnailBox" {% if VideoId %}
+            src='https://img.youtube.com/vi/{{VideoId}}/maxresdefault.jpg' {% endif %}
+            src="{% static 'files/back.jpg'%}" style="height:100%;background-color:transparent" alt="">
+        </div>
+
+        <div class="px-2 w-100 row position-relative" style="margin-top:2px">
+
+
+          <div class="d-none" id="VolumeControlBox"
+            style="position: absolute;left:50%;transform: translateX(-50%);padding:10px;width:fit-content;margin:auto;;background-color:#a8a8a8d1;z-index:1;border-radius:5px;margin-top: 8px;bottom:100%;">
+            <div class="d-flex justify-content-center align-items-center">
+              <span class="mx-2 text-primary">Volume: </span>
+              <input type="range" name="volumecontrol" min="0" max="100" backgound-size="50% 100%" value="50"
+                id="volumecontrol" class="custom-range" style="background-size: 53% 100%;">
+              <span id="volumecontrolstatus" class="text-primary" style="font-size: 12px;/* color: white; */">53%</span>
+
+            </div>
+          </div>
+
+          <div class="col-auto me-auto"><span id="currentTime" class="text-primary">00:00</span>
+          </div>
+
+          <div class="col p-0">
+            <input type="range" name="" id="ProcessMeter" min="0" max="100" value="0" class="w-100">
+          </div>
+
+          <div class="col-auto px-2">
+            <span id="totalTime" class="text-primary">00:00</span>
+          </div>
+
+          <div class="row flex-row p-1 d-flex justify-content-evenly align-items-center"
+            style="margin:auto !important;">
+            <!-- <div class="col-auto m-auto w-0 p-0 m-0 order-first"><button class="btn p-0 border-0" data-bs-target="#modalforCurrentPlaylist" data-bs-toggle="modal"><i class="bi bi-music-note-list fs-2 text-primary"></i></button></div> -->
+
+            <div class="col p-0 m-0 order-first">{% if isPlaylist %}<div class="spinner-grow text-primary"
+                role="status"><span class="sr-only"></span></div><button id="LoadList" class="btn d-none disabledBtns"
+                {% if not isPlaylist %}disabled style="border:none !important" {% endif %}
+                data-bs-target="#modalforCurrentPlaylist" data-bs-toggle="modal"><i
+                  class="bi bi-music-note-list fs-2 text-primary"></i>{% else %}<button id="LoadList"
+                  class="btn disabledBtns" {% if not isPlaylist %}disabled style="border:none !important" {% endif %}
+                  data-bs-target="#exampleModalToggle" data-bs-toggle="modal"><i
+                    class="bi bi-music-note-list fs-2 text-primary"></i>{% endif %}</div>
+            <div class="col p-0 m-0 "><button id="PreBtn" class="btn disabledBtns" {% if not isPlaylist %}disabled
+                style="border:none !important;transform: rotate(180deg);" {% else %}style="transform: rotate(180deg);"
+                {% endif %}><i class="bi bi-fast-forward-circle fs-2 text-primary"></i></i></button></div>
+            <div class="col p-0 m-0 "><button id="preSkipBtn" disabled class="btn"><i
+                  class="bi bi-skip-backward-circle fs-2 text-primary"></i></i> </div>
+            <div class="col p-0 m-0 "><button id="PlayButton" class="btn" {% if not VideoId %}disabled
+                style="border:none !important" {% endif %}><i class="bi bi-play-circle fs-2 text-primary"></i></button>
+            </div>
+            <div class="col p-0 m-0 "><button id="nextSkipBtn" disabled class="btn"
+                style="transform: rotate(180deg);"><i class="bi bi-skip-backward-circle fs-2 text-primary"></i></button>
+            </div>
+            <div class="col p-0 m-0 "><button id="NextBtn" class="btn disabledBtns" {% if not isPlaylist %}disabled
+                style="border:none !important" {% endif %}><i
+                  class="bi bi-fast-forward-circle fs-2 text-primary"></i></button></div>
+            <div class="col p-0 m-0 order-last d-flex justify-content-center align-items-center"
+              style="position: relative;"><button class="btn" id="volumecontrolbtn"><i
+                  class="bi bi-soundwave fs-2 text-primary"
+                  style="font-weight: bolder;"></i></button><!-- <sup id="volumecontrolstatus" class="text-primary"> 50%</sup> -->
+            </div>
+
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- |||||||||||||||||||||||||   Creating Searching and auto suggesions area for user |||||||||||||||||||||| -->
+  <div class="container-fluid m-0 p-0 position-relative" id="explore" style="height:100vh;">
+    <button onclick="window.location.href='#'" title="Go to player dashboard"
+      class="btn btn-sm position-absolute end-0 top-0 m-5 waitingForConnection" style="z-index:1;"><i
+        class="bi bi-tv text-primary fs-4"></i></button>
+
+    <div class="border shadow d-flex align-items-center justifyc-content-start p-0 position-relative bg-info">
+
+
+      <nav class="navbar bg-transparent d-inline-block navsearch">
+        <a class="navbar-brand d-flex justify-content-center align-items-center" href="#">
+          <img src="{% static 'files/icon1.png' %}" alt="Logo" width="48px" height="50px"
+            class="d-inline-block align-text-top">
+          <span class="fs-4 text-white">YT-Mp3</span>
+        </a>
+      </nav>
+
+      <div class="d-inline-block w-100 mx-2">
+        <form class="d-flex position-relative" role="search" id="searchNewitem">
+          <input class="form-control me-2" type="search" placeholder="Search for videos or playlist"
+            aria-label="Search">
+          <button class="btn btn-outline-success" type="submit">Search</button>
+
+
+
+        </form>
+        <span class="position-absolute bottom-0 left-50 text-danger d-none" id="Newsearchbox">Search query is
+          required</span>
+      </div>
+
+      <div class="progress position-absolute bottom-0 w-100 bg-transparent" role="progressbar"
+        aria-label="info 1px high" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="height: 1px">
+        <div class="progress-bar" id="processbarstatus"
+          style="width:0%;height:2px; background: linear-gradient(45deg, red, blue);"></div>
+      </div>
+
+    </div>
+
+
+
+    <!-- Example split danger button -->
+
+
+    <!-- <div class="row my-1 w-100 mx-auto text-center">
+        <div class="col"><button class="btn btn-primary btn-sm border-0">Videos</button></div>
+        <div class="col"><button class="btn btn-success btn-sm border-0">Playlist</button></div>
+        <div class="col">        <button onclick="window.location.href='#player'" class="btn btn-sm bg-success waitingForConnection" style="z-index:1;bottom:-40px"><i class="bi bi-tv text-white"></i></button>
+        </div>
+      </div> -->
+    <div id="SearchContentbox"
+      class="m-auto p-2 w-100 d-flex flex-wrap justify-content-center overflow-auto seach_results bg-info"
+      style="height:85%;">
+
+
+      <!-- <span class="placeholder col-6"></span>
+        <span class="placeholder w-75"></span>
+        <span class="placeholder" style="width: 25%;"></span> -->
+
+      {% for item in cards %}
+      <div class="card m-1 pb-1 bg-info2" aria-hidden="true" style="min-width:250px;">
+        <!-- <img src="..." class="card-img-top" alt="..."> -->
+        <div class="card placeholder disabled bg-info2" style="height:120px;"></div>
+        <div class="card-body bg-info2 p-0 m-0">
+          <h5 class="card-title placeholder-glow w-100 my-0 py-0">
+            <span class="placeholder col-6 w-100"></span>
+          </h5>
+        </div>
+      </div>
+      {% endfor %}
+
+
+    </div>
+
+  </div>
+
+  <!-- Modal for list video insert Playing Playlist Videos -->
+  <div class="modal fade backCardImage" id="modalforCurrentPlaylist" aria-hidden="true"
+    aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content" id="modalBackImg">
+        <div class="modal-header backCardImage position-relative ">
+          <button type="button" class="btn-close position-absolute top-0 m-2 end-0 bg-secondary" data-bs-dismiss="modal"
+            aria-label="Close"></button>
+          <div class="row w-100 flex-wrap-reverse ">
+            <div class="col-md ">
+              <h1 class="modal-title fs-5 text-white" id="playlistTitle"></h1>
+              <p class="card-text text-white py-0 m-0" id="playlisLenght"></p>
+              <p class="card-text text-white py-0 m-0" id="playlisView"></p>
+              <p class="card-text text-white py-0 m-0" id="PlaylistlastUpdated"></p>
+              <div class="row align-items-center">
+                <div class="col p-0 px-1">
+                  <input type="search" name="searchinplaylist" placeholder="search for songs" id="searchinplaylist"
+                    class="form-control mt-2 text-white" style="height:30px;background-color:#ffffff3d !important">
+                  <style>
+                    input#searchinplaylist::placeholder {
+                      color: white !important;
+                    }
+                  </style>
+                </div>
+                <div class="col-auto p-0 m-0">
+                  <span class="text-warning" id="searchvideoresults"></span>
+                </div>
+
+              </div>
+            </div>
+            <div class="col-md text-end ">
+              <img id="playlistThumbnail" src="..." class="rounded shodow-lg" style="width:60%;" alt="">
+
+            </div>
+          </div>
+
+
+
+        </div>
+        <div class="modal-body p-0 m-0">
+          <div class="d-flex justify-content-start align-item-start flex-wrap backCardImage"
+            id="insertPlayingPlaylistVideo">
+
+            <!-- Inserting playlist video from a single video -->
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for list faveroite videos for quick play -->
+  <div class="modal fade backCardImage" id="modalformFaveroiteVideos" aria-hidden="true"
+    aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content" id="modalBackImgsavedvideo"
+        style="background-image:url('{% static 'files/back.jpg' %}');background-size: cover;">
+        <div class="modal-header backCardImage position-relative d-block p-1">
+          <button type="button" class="btn-close position-absolute top-0 m-2 end-0 bg-secondary" data-bs-dismiss="modal"
+            aria-label="Close"></button>
+
+          <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+          <div class="row w-100">
+            <div class="col">
+              <h1 class="modal-title text-white fs-2" id="playlistTitlesavedvideo">Your Favourite videos</h1>
+              <p class="card-text text-white m-0" id="playlisLenghtsavedvideo"></p>
+              <p class="card-text text-white m-0" id="playlisViewsavedvideo"></p>
+            </div>
+            <!-- <div class="col text-end">
+            <img id="playlistThumbnailsavedvideo" src="{% static 'files/back.jpg' %}" style="width: 70%;"
+              alt="">
+
+          </div> -->
+          </div>
+
+          <div class="row justify-content-start w-100">
+            <button style="width:fit-content;" id="PlayFaveroiteQueue" class="mx-auto btn"><i
+                class="bi bi-collection-play fs-3 text-white"></i></button>
+            <button disabled style="width:fit-content;" id="deleteOneFaveroite" class="mx-auto btn"><i
+                class="bi fs-3 text-white bi-trash3"></i></button>
+            <button style="width:fit-content;" id="deleteAllFaveroite" class="mx-auto btn"><i
+                class="bi fs-3 text-white bi-radioactive"></i></button>
+            <button style="width:fit-content;" id="cancleFaveroiteSelection" class="mx-auto btn d-none"><i
+                class="fs-3 text-white bi bi-x"></i></button>
+          </div>
+
+        </div>
+        <div class="modal-body p-0 m-0">
+          <div class="d-flex justify-content-start align-item-start flex-wrap backCardImage"
+            id="insertFaveroitePlaylistVideo">
+
+            <!-- Inserting playlist video from a single video -->
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for list video for quick play -->
+  <div class="modal fade backCardImage" id="modalforHistoryPlaylist" aria-hidden="true"
+    aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+    <div class="modal-dialog modal-xl ">
+      <div class="modal-content" id="modalBackImgsaved"
+        style="background-image:url('{% static 'files/back.jpg' %}');background-size: cover;">
+        <div class="modal-header backCardImage position-relative flex-column p-1">
+          <button type="button" class="btn-close position-absolute top-0 m-2 end-0 bg-secondary" data-bs-dismiss="modal"
+            aria-label="Close"></button>
+
+          <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+          <div class="row w-100 flex-wrap-reverse">
+            <div class="col">
+              <h1 class="modal-title text-white fs-2" id="playlistTitlesaved">Auto Saved Playlists</h1>
+              <p class="card-text text-white m-0" id="playlisLenghtsaved"></p>
+              <p class="card-text text-white m-0" id="playlisViewsaved"></p>
+            </div>
+            <!-- <div class="col text-end">
+            <img id="playlistThumbnailsaved" src="{% static 'files/back.jpg' %}" style="width:50%;"
+              alt="">
+
+          </div> -->
+          </div>
+          <div class="row justify-content-start w-100">
+            <button disabled style="width:fit-content;" id="deleteOnePlatlist" class="mx-auto btn "><i
+                class="bi fs-3 text-white bi-trash3"></i></button>
+            <button style="width:fit-content;" id="deleteAllPlaylist" class="mx-auto btn "><i
+                class="bi fs-3 text-white bi-radioactive"></i></button>
+            <button style="width:fit-content;" id="canclePlaylistSelection" class="mx-auto btn d-none"><i
+                class="fs-3 text-white bi bi-x-circle"></i></button>
+          </div>
+        </div>
+        <div class="modal-body p-0 m-0">
+          <div class="d-flex justify-content-start align-item-start flex-wrap backCardImage"
+            id="insertSavedPlaylistInBox">
+
+            <!-- Inserting playlist video from a single video -->
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for desktop share -->
+  <div class="modal fade backCardImage" id="modalformDesktopshare" aria-hidden="true"
+    aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+
+    <div class="modal-dialog modal-dialog-centered ">
+      <div class="modal-content border " id="modalBackImgsaved"
+        style="background-image:url('{% static 'files/back.jpg' %}');background-size:cover;">
+        <div class="modal-header d-flex justify-content align-items-center" style="backdrop-filter: blur(20px);">
+          <!-- <button type="button" class="btn-close position-absolute top-0 m-2 end-0 bg-secondary" data-bs-dismiss="modal" aria-label="Close"></button> -->
+
+          <img src="{% static 'files/icon1.png' %}" width="55px" height="60px" alt="">
+          <span class="modal-title text-white fs-2 mx-auto">Share with friends</span>
+          <button type="button" class="btn" data-bs-dismiss="modal"><i class="text-white fs-2 bi bi-x"></i></button>
+
+
+        </div>
+        <div class="modal-body p-0 m-0" style="backdrop-filter: blur(20px);">
+          <style>
+            .media-icons1:hover {
+              color: #c91515 !important;
+            }
+
+            .media-icons2:hover {
+              color: #1da1f2 !important;
+            }
+
+            .media-icons4:hover {
+              color: #e1306c !important;
+            }
+
+            .media-icons5:hover {
+              color: #00f7ff !important;
+            }
+
+            .media-icons3:hover {
+              color: #00ff40 !important;
+            }
+
+            .media-icons6:hover {
+              color: #cc8500 !important;
+            }
+
+            .media-icons7:hover {
+              color: #00ffea !important;
+            }
+
+            .media-icons8:hover {
+              color: #ff006a !important;
+            }
+          </style>
+          <div class="row w-100 m-auto media-icons">
+            <div class="col text-center"><button id="facebookShare" onclick="ShareNowLink(this)"
+                class="btn border-0 p-0 m-0 fs-1"><i class="text-white media-icons2 bi fs-2 bi-facebook"></i></button>
+            </div>
+            <div class="col text-center"><button id="whatsappShare" onclick="ShareNowLink(this)"
+                class="btn border-0 p-0 m-0 fs-1"><i
+                  class="text-white media-icons3 bi fs-2 bi-whatsapp"></i></i></button></div>
+            <div class="col text-center"><button id="instagramShare" onclick="ShareNowLink(this)"
+                class="btn border-0 p-0 m-0 fs-1"><i class="text-white media-icons4 bi fs-2 bi-instagram"></i></button>
+            </div>
+            <div class="col text-center"><button id="twitterShare" onclick="ShareNowLink(this)"
+                class="btn border-0 p-0 m-0 fs-1"><i class="text-white media-icons5 bi fs-2 bi-twitter"></i></button>
+            </div>
+            <!-- <div class="col text-center"><button id="mailShare" onclick="ShareNowLink(this)"
+                class="btn border-0 p-0 m-0 fs-1"><i class="text-white media-icons1 bi fs-2 bi-envelope"></i></button>
+            </div> -->
+          </div>
+          <hr class="p-0 m-0">
+          <div class="row justify-content-center align-items-center w-100 h-100 m-auto p-2">
+            <p class="w-100 text-center text-white fs-4 p-0">Scan QR Code</p>
+            <div style="width: 100px;height:100px;"
+              class="w-50 h-50 d-flex justify-content-center align-items-center bg-transparent">
+              
+                <img id="shareWithQR"  style="width: 200px;height:200px;border:4px solid cyan;border-radius:4px;padding:1px 2px;" alt="" title="Scan QR Code"   />
+
+
+            </div>
+            <input type="url" name="copyurl" id="copyurl" class="w-100 my-1 border-0" style="background-color: #140929b0;color:gray;border-radius:8px;">
+            <div class="row text-center shadow-lg border rounded mx-auto m-2">
+              <div class="col"><button class="btn border-0" title="copy site link"
+                  onclick="CopyShareUrl(this,'link')"><i class="fs-4 text-white media-icons6 bi bi-copy"></i></button>
+              </div>
+              <div class="col"><button class="btn border-0 d-none" title="copy qr image"
+                  onclick="CopyShareUrl(this,'qr')"><i class="fs-4 text-white media-icons7 bi bi-qr-code"></i></button>
+              </div>
+              <div class="col"><button class="btn border-0" title="Global Share" onclick="SharePage()"><i
+                    class="fs-4 text-white media-icons8 bi bi-share-fill"></i></button></div>
+              <input type="text" id="shareQRurl" hidden>
+
+            </div>
+
+            <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+            <script>
+              let baseUrl = window.location.href.replace('&',"__")
+              baseUrl = baseUrl.replace('&',"__")
+              console.log("The base url is : ",baseUrl)
+              let qrcode = fetch(`/create_Qr/?data_url=${baseUrl}`)
+              qrcode.then((res) => {
+                url = res['url']
+                document.getElementById("shareWithQR").src = url
+                document.getElementById("copyurl").value = window.location.href
+              })
+
+
+
+            </script>
+
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+    integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+    crossorigin="anonymous"></script>
+
+  <!-- <script src="https://code.jquery.com/jquery-3.7.1.js"></script> -->
+  <script src="{% static 'js/code.jquery.com_jquery-3.7.1.js'%}"></script>
+  <script src="{% static 'js/main.js'%}"></script>
+  <script>
+
+
+  </script>
+
+  <script>
+
+  </script>
+
+</body>
+
+</html>
